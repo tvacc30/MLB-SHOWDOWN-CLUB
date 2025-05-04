@@ -1,0 +1,857 @@
+/* --- General Layout --- */
+body {
+    background-color: #1f512f; /* Dark green for surrounding area */
+    display: flex;
+    flex-direction: column; /* Stack main areas vertically */
+    /* Removed justify-content: center; and align-items: center; here from body */
+    /* This allows the child elements (lineups, placemat) to control their own centering */
+    padding: 0;
+    margin: 0;
+    min-height: 100vh;
+    font-family: sans-serif;
+    overflow-x: hidden; /* Prevent horizontal overflow of body content */
+    /* overflow-y: auto; */ /* Let content scroll if needed */
+    box-sizing: border-box; /* Include padding in body size if you add it later */
+  }
+  
+  /* Center main content containers */
+  .top-lineup-area,
+  .bottom-lineup-area,
+  .placemat {
+      width: 100%;
+      max-width: 1500px; /* A reasonable max-width for large screens */
+      margin-left: auto; /* Center the block */
+      margin-right: auto; /* Center the block */
+      padding: 10px;
+      box-sizing: border-box;
+      text-align: center; /* Center headings and flex containers within */
+  }
+  
+  /* Specific placemat centering within its container */
+  .placemat {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center children (field, potentially other things) horizontally */
+    padding: 0; /* Let the field/scoreboard/controls handle internal spacing */
+    /* margin: 10px auto; */ /* Margin controlled by the general container rule above */
+  }
+  
+  
+  /* --- Grids (Lineups, Bench, Pitcher) --- */
+  .lineup-grid,
+  .bench-grid,
+  .pitcher-grid {
+    display: flex; /* Use flexbox for the grids */
+    gap: 10px; /* Space between spot elements */
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Allow spots to wrap to the next line on smaller screens */
+    justify-content: center; /* Center the spots within the grid container */
+    align-items: flex-start; /* Align items to the top */
+  
+    /* max-width and auto margins are handled by the parent .top-lineup-area/.bottom-lineup-area */
+  }
+  
+  
+  /* --- Baseball Field Area (Improved & Scalable) --- */
+  .field-area {
+    position: relative;
+    /* **SCALING FIX:** Use vmin for responsive size based on smaller viewport dimension */
+    /* Adjusted size slightly for potentially better fit with side UI */
+    width: 75vmin; /* Field width scales with viewport */
+    height: 75vmin; /* Field height scales with viewport */
+    max-width: 800px; /* Prevent it from becoming too large on massive screens */
+    max-height: 800px; /* Match max-width */
+  
+  
+    background: #a0522d; /* Base color */
+    border: 0.5vmin solid #ffffff;
+    border-radius: 2vmin;
+    overflow: hidden; /* Clip elements extending outside */
+    margin: 0 auto; /* Center the field area within the placemat */
+    box-sizing: border-box;
+    flex-shrink: 0; /* Prevent the field from shrinking below its size in a flex container */
+  }
+  
+  /* Warning track using its own div - clip-path scales with parent (field-area) */
+  .warning-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #6d4c41; /* Dirt warning track */
+    /* clip-path uses percentages, scales proportionally relative to field-area */
+    clip-path: polygon(
+      0% 0%, 100% 0%,
+      100% 35%, /* Adjust percentages if needed to match desired shape */
+      60% 95%,
+      50% 100%,
+      40% 95%,
+      0% 35%
+    );
+    z-index: 1;
+  }
+  
+  
+  /* Outfield grass shape using pseudo-element - clip-path scales with parent (field-area) */
+  .field-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at 50% 100%, #4caf50 30%, #2e7d32 70%, #1b5e20 95%);
+    /* Fan-shaped outfield grass area - clip-path uses percentages, scales */
+      clip-path: polygon(
+      0% 0%, 100% 0%,
+      100% 40%, /* Adjust percentages if needed */
+      55% 90%,
+      50% 95%,
+      45% 90%,
+      0% 40%
+    );
+    z-index: 2;
+  }
+  
+  /* Infield diamond - Use percentages for size and position */
+  .diamond {
+    position: absolute;
+    /* Original: width: 50%; height: 50%; top: 25%; left: 25%; */
+    /* Ensure proportions are relative to field-area */
+    width: 50%;
+    height: 50%;
+    background: linear-gradient(135deg, #b98a65, #a0522d);
+    transform: rotate(45deg);
+    top: 25%;
+    left: 25%;
+    z-index: 3;
+    /* **SCALING FIX:** Use relative units for border */
+    border: 0.15vmin solid #6d4c41;
+  }
+  
+  /* Base paths - Position and size using percentages */
+  /* You'll need to define specific styles for each path segment */
+  .base-path {
+      position: absolute;
+      background-color: #8b5a2b; /* Darker dirt for paths */
+      z-index: 4;
+      /* Example styling for a specific path (adjust percentages based on your field layout) */
+      /*
+      &.#home-first {
+          bottom: 14%;
+          left: 48%;
+          width: 5%;
+          height: 20%; // Adjust based on base sizes and field size
+          transform: rotate(-45deg);
+          transform-origin: bottom center;
+      }
+      */
+  }
+  
+  /* Foul lines - Use percentages for size and position */
+  .foul-line {
+    position: absolute;
+    /* Original width: 0.5%; */
+    width: 0.7vmin; /* Use vmin for thickness for consistency */
+    /* Original height: 75%; */
+    height: 75%;
+    background-color: #ffffff;
+    /* Original bottom: 16.67%; */
+    bottom: 15%; /* Adjusted slightly */
+    /* Original left: 49.75%; */
+    left: 50%; /* Center point */
+    transform-origin: bottom center;
+    z-index: 5;
+  }
+  .foul-line.left {
+    transform: translateX(-50%) rotate(-45deg); /* Adjust transform-origin or use translateX to center before rotating */
+  }
+  .foul-line.right {
+    transform: translateX(-50%) rotate(45deg); /* Adjust transform-origin or use translateX to center before rotating */
+  }
+  
+  
+  /* Bases and Mound - Use percentages for size and position, relative units for border/shadow */
+  /* Added the '.spot' class to these for image drop compatibility */
+  .spot.base,
+  .spot.mound {
+    position: absolute;
+    background-color: #f5f5f5; /* Worn base color */
+    z-index: 6; /* Above paths and lines */
+    /* **SCALING FIX:** Use relative units for border and shadow */
+    border: 0.15vmin solid #d3d3d3;
+    box-shadow: 0.2vmin 0.2vmin 0.5vmin rgba(0, 0, 0, 0.2);
+    display: flex; /* Make them flex containers for centering image content */
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Hide image parts that exceed base boundary */
+    color: #333; /* Base labels color */
+    font-weight: bold;
+    font-size: 1.8vmin; /* Scaled font size for base labels */
+  }
+  
+  /* Home plate - Pentagon Shape - Use percentages for size and position */
+  #home {
+    /* Original: width: 4.17%; height: 4.17%; bottom: 14.17%; left: 47.9%; */
+    /* Adjusted size and position slightly */
+    width: 5vmin;
+    height: 5vmin;
+    bottom: 12vmin; /* Position relative to field bottom */
+    left: calc(50% - 2.5vmin); /* Center relative to field width */
+    background-color: #ffffff; /* Typically brighter white */
+    clip-path: polygon(0% 0%, 100% 0%, 100% 50%, 50% 100%, 0% 50%);
+    z-index: 7; /* Above other bases potentially */
+  }
+  
+  /* Other bases - Square rotated - Use percentages for size and position */
+  #first, #second, #third {
+    /* Original: width: 3.33%; height: 3.33%; transform: rotate(45deg); */
+    width: 4vmin;
+    height: 4vmin;
+    transform: rotate(45deg);
+    /* Adjusted positions using vmin/calc relative to field-area */
+  }
+  #first {
+      bottom: 30vmin; /* Position relative to field bottom */
+      right: 30vmin; /* Position relative to field right */
+  }
+  #second {
+      top: 15vmin; /* Position relative to field top */
+      left: calc(50% - 2vmin); /* Center relative to field width */
+  }
+  #third {
+      bottom: 30vmin; /* Position relative to field bottom */
+      left: 30vmin; /* Position relative to field left */
+  }
+  
+  
+  /* Pitcher’s mound - Use percentages for size and position */
+  .spot.mound { /* Added .spot class */
+    /* Original: width: 8.33%; height: 8.33%; top: 45.83%; left: 45.83%; */
+    width: 10vmin;
+    height: 10vmin;
+    background: radial-gradient(circle, #a86a3d 20%, #8b5a2b 70%);
+    border-radius: 50%;
+    top: calc(50% - 5vmin); /* Center vertically */
+    left: calc(50% - 5vmin); /* Center horizontally */
+    z-index: 7;
+  }
+  
+  
+  /* --- Other UI Elements (Dice, Spots, Buttons, Scoreboard/Controls within field) --- */
+  
+  /* Dice containers remain fixed to the viewport */
+  .dice-container {
+    position: fixed;
+    top: 20px;
+    text-align: center;
+    z-index: 10; /* Ensure dice are above everything else */
+    color: white; /* Ensure text is visible */
+    /* Added margin to space them from the edge */
+    margin: 10px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.3); /* Optional: Add a slight background for readability */
+    border-radius: 5px;
+  }
+  
+  #dice1-container {
+    left: 20px;
+  }
+  
+  #dice2-container {
+    right: 20px;
+  }
+  
+  .dice-label {
+    font-size: 1em; /* Relative to parent dice-container */
+    font-weight: bold;
+    color: inherit; /* Inherit color from container */
+    margin-bottom: 5px; /* Reduced margin */
+  }
+  
+  #dice1, #dice2 {
+    /* **REMOVED fixed size** */
+    /* It's a button, let padding/font size control its size */
+    /* width: 100px; */
+    padding: 10px 15px; /* Added padding */
+    font-size: 1.2em; /* Relative to parent */
+    border: 1px solid #fff; /* Added border */
+    border-radius: 5px; /* Rounded corners */
+    background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent background */
+    color: white; /* White text */
+    cursor: pointer;
+    transition: transform 0.5s ease, background-color 0.2s ease; /* Added background transition */
+  }
+  #dice1:hover, #dice2:hover {
+      background-color: rgba(255, 255, 255, 0.4); /* Darker on hover */
+  }
+  
+  
+  #dice1.rolling, #dice2.rolling {
+    animation: spin 0.5s linear infinite;
+  }
+  
+  @keyframes spin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  #diceResult1, #diceResult2 {
+    margin-top: 5px; /* Reduced margin */
+    font-size: 1.2em; /* Relative to parent */
+    font-weight: bold;
+    color: inherit; /* Inherit color */
+  }
+  
+  
+  /* --- Individual Spots (Lineup, Bench, Pitcher) --- */
+  /* Common styles for all individual spots remain similar */
+  /* Base/Mound spots override some of these */
+  .spot:not(.base):not(.mound) { /* Apply only to non-base/mound spots */
+    width: 150px; /* Keep this size for lineup/bench/pitcher spots */
+    height: 150px;
+    border: 2px solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+    overflow: hidden;
+    box-sizing: border-box; /* Include border in size */
+    flex-shrink: 0; /* Prevent shrinking in flex grids */
+    position: relative; /* Needed for absolute positioning of image if placed inside */
+  }
+  
+  /* Specific spot styles remain */
+  .blue-set .spot {
+    background-color: #007bff;
+    border-color: #0056b3;
+  }
+  
+  .red-set .spot {
+    background-color: #dc3545;
+    border-color: #c82333;
+  }
+  
+  /* Style for images *directly within* a spot */
+  .spot > img.draggable-image { /* Target draggable images that are direct children of a spot */
+    max-width: 100%; /* Ensure it fits within the spot */
+    max-height: 100%;
+    /* Removed transform: scale(1); from here, controlled by .draggable-image base style */
+    /* Removed transition here, controlled by .draggable-image base style */
+    display: block;
+    object-fit: contain; /* Ensure image fits without distortion */
+    position: absolute; /* Position image absolutely within the spot */
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+  
+  
+  /* --- Draggable Images --- */
+  .draggable-image {
+    cursor: grab;
+    /* Base size when not in a spot or dragging */
+    max-width: 80px; /* Adjusted base size */
+    max-height: 80px; /* Match for square */
+    /* Add/Keep transitions */
+    transition: max-width 0.2s ease, max-height 0.2s ease, transform 0.2s ease-in-out, opacity 0.2s ease;
+    display: block;
+    box-sizing: border-box;
+    /* The base transform should be 1 (no scale) */
+    transform: scale(1); /* Ensure base scale is 1 */
+    user-select: none; /* Prevent selecting the image */
+    pointer-events: auto; /* Ensure mouse events work */
+  }
+  
+  /* CSS to make images potentially larger when they are on the playing field (or outside a spot) */
+  /* This is now handled by the JS setting position: absolute and the listener adding/removing 'on-field' class */
+  .draggable-image.on-field {
+    /* This class is added when dropped on the field (body) by JS */
+    max-width: 100px; /* Make field images slightly larger than base size */
+    max-height: 100px;
+    /* transform: scale(1); */ /* Scale is now controlled by max-width/height */
+  }
+  
+  .draggable-image.dragging {
+    opacity: 0.8; /* Slightly less transparent */
+    cursor: grabbing;
+    /* Explicitly set scale back to 1 when dragging */
+    transform: scale(1);
+    /* Keep the transition so it smoothly scales back down */
+    transition: transform 0.2s ease-in-out, opacity 0.2s ease; /* Add opacity transition */
+  }
+  
+  /* --- Hover effect for draggable images --- */
+  /* IMPORTANT: This scale effect might interfere with dragging/dropping if it changes element size or position *while* you are trying to click/drag/drop.
+     Consider if you need this visual effect, or if a simple border/shadow hover is better.
+     If keeping, ensure it's fast and doesn't affect layout much.
+     Added `:not(.dragging)` to prevent scaling while dragging. */
+  .draggable-image:hover:not(.dragging):not(.on-field) {
+    /* Scale the image up on hover ONLY if it does NOT have the .dragging or .on-field class */
+    /* Apply this primarily to images in lineup/bench spots */
+    transform: scale(1.1); /* Adjust the scale factor for a subtle zoom in spots */
+    cursor: zoom-in; /* Optional: Change cursor on hover when zoom is active */
+  }
+  /* Hover effect when on the field, potentially different */
+  .draggable-image.on-field:hover:not(.dragging) {
+       transform: scale(1.1); /* Subtle scale on field too */
+       cursor: zoom-in;
+  }
+  
+  
+  /* Start New Game Button - fixed positioning */
+  #newGameButton {
+    background-color: #ffc107; /* Warning color */
+    color: #212529; /* Dark text */
+    padding: 12px 24px; /* Adjusted padding */
+    border: none;
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer;
+    position: fixed; /* Keep fixed positioning */
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%); /* Center horizontally */
+    z-index: 10;
+    font-size: 1em; /* Relative font size */
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s ease;
+  }
+  #newGameButton:hover {
+      background-color: #e0a800; /* Darker yellow on hover */
+  }
+  
+  /* Game URL Section */
+  #gameUrlSection {
+      position: fixed; /* Fixed positioning */
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%); /* Center horizontally */
+      z-index: 10;
+      display: flex; /* Use flexbox for input and button */
+      gap: 5px; /* Space between input and button */
+      padding: 8px;
+      background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  #gameUrlInput {
+      flex-grow: 1; /* Allow input to take available space */
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 0.9em;
+  }
+  
+  #copyUrlButton {
+      padding: 5px 10px;
+      border: 1px solid #007bff;
+      border-radius: 3px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+  }
+  #copyUrlButton:hover {
+      background-color: #0056b3;
+  }
+  
+  
+  /* --- Scoreboard and Controls (Positioned Inside Scaled Field) --- */
+  
+  /* Container holding both scoreboard and controls, positioned inside field-area */
+  /* This allows them to stay together and relatively sized */
+  .field-area .scoreboard-container { /* Target only the one inside field-area */
+    position: absolute; /* Position relative to .field-area */
+    /* **SCALING FIX:** Position relative to scaled field */
+    /* Adjusted top position to make space for controls below it if stacked */
+    top: 5%; /* Positioned relative to the field height */
+    right: 2%; /* Positioned relative to the field width */
+    z-index: 9;
+  
+    /* **SCALING FIX:** Use percentages for width and add max-width */
+    /* Adjusted width/max-width to fit better on the side */
+    width: 30%;
+    max-width: 280px; /* Keep it from getting too wide */
+  
+    background-color: #f0f0f0;
+    border: 0.1vmin solid #ccc;
+    border-radius: 0.8vmin;
+    padding: 1vmin;
+    text-align: center;
+    box-sizing: border-box;
+  
+    /* Removed margin-bottom here, spacing between scoreboard/controls is handled by flex or margin */
+  }
+  
+  /* Scoreboard Controls container inside field-area */
+  .field-area .scoreboard-controls { /* Target only the one inside field-area */
+    position: absolute; /* Position relative to .field-area */
+    /* **SCALING FIX:** Position relative to scaled field */
+    /* Position below the scoreboard container */
+    top: calc(5% + 1vmin + 2vmin); /* Scoreboard top + its padding + its border */
+    right: 2%; /* Align with scoreboard container */
+    z-index: 9;
+  
+    /* **SCALING FIX:** Match width/max-width of scoreboard container */
+    width: 30%;
+    max-width: 280px;
+  
+    padding: 1vmin;
+    border: 0.1vmin solid #ccc;
+    border-radius: 0.8vmin;
+    background-color: #f9f9f9;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  
+  /* Adjust vertical spacing between scoreboard and controls if needed */
+  /* If they are siblings inside .field-area, you might use margin-top on scoreboard-controls */
+  /* If they are wrapped in another flex/grid, adjust gap/margin there */
+  
+  
+  /* Scoreboard Container - Table */
+  .baseball-scoreboard {
+    border-collapse: collapse;
+    margin: 0 auto 0.8vmin auto; /* Center table, scaled margin below */
+    font-family: Arial, sans-serif;
+    font-size: 1.5vmin; /* Scaled font size */
+    width: 100%;
+  }
+  
+  .baseball-scoreboard th,
+  .baseball-scoreboard td {
+    border: 0.1vmin solid #aaa;
+    padding: 0.4vmin 0.3vmin;
+    text-align: center;
+    min-width: 1.8vmin; /* Scaled min width for inning cells */
+  }
+  
+  .baseball-scoreboard thead th {
+    background-color: #333;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  .baseball-scoreboard tbody td {
+    background-color: #fff;
+    color: #333;
+  }
+  
+  /* Team Name Column */
+  .baseball-scoreboard td.team-name {
+    text-align: left;
+    font-weight: bold;
+    background-color: #e9e9e9;
+    min-width: 6vmin;
+  }
+  
+  /* Total Columns (R, H, E) - Adjusted selector to include 'E' */
+  .baseball-scoreboard th:nth-last-child(-n+3), /* Select last 3 th elements */
+  .baseball-scoreboard td:nth-last-child(-n+3) /* Select last 3 td elements */
+  {
+    font-weight: bold;
+    background-color: #e0e0e0;
+  }
+  
+  
+  /* Highlight Current Inning (Added by JavaScript) */
+  .baseball-scoreboard td.current-inning-cell {
+    background-color: #ffff99;
+    font-weight: bold;
+  }
+  
+  /* Game State Info (Inning, Outs, Half Inning) */
+  .game-state {
+    margin-top: 0.8vmin;
+    font-size: 1.8vmin;
+    color: #555;
+    display: flex;
+    justify-content: center;
+    gap: 1.5vmin;
+    flex-wrap: wrap;
+  }
+  
+  .game-state p {
+      margin: 0;
+      padding: 0;
+  }
+  
+  .game-state span {
+    font-weight: bold;
+    color: #333;
+  }
+  
+  
+  /* Scoreboard Controls - Styles for elements INSIDE */
+  .scoreboard-controls h4 {
+    margin-top: 0;
+    margin-bottom: 1vmin;
+    font-size: 2vmin;
+    color: #333;
+  }
+  
+  .scoreboard-controls .control-row {
+    margin-bottom: 0.8vmin;
+    display: flex;
+    justify-content: center;
+    gap: 0.5vmin;
+    flex-wrap: wrap;
+  }
+  
+  .scoreboard-controls button {
+    padding: 0.5vmin 1.2vmin;
+    margin: 0; /* Removed margin here, use gap from parent */
+    cursor: pointer;
+    border: 0.1vmin solid #007bff;
+    border-radius: 0.5vmin;
+    background-color: #007bff;
+    color: white;
+    font-size: 1.5vmin;
+    transition: background-color 0.2s ease;
+  }
+  
+  .scoreboard-controls button:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+  }
+  
+  /* Added styles for the new Error and Next Inning buttons */
+  button[data-action="add-error"] {
+    background-color: #dc3545;
+    border-color: #c82333;
+  }
+  button[data-action="add-error"]:hover {
+      background-color: #c82333;
+      border-color: #bd2130;
+  }
+  
+  button[data-action="next-inning"] {
+      background-color: #28a745;
+      border-color: #218838;
+  }
+  button[data-action="next-inning"]:hover {
+      background-color: #218838;
+      border-color: #1e7e34;
+  }
+  
+  button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+  }
+  
+  
+  /* --- Strategy Cards --- */
+  /* Strategy Bar */
+  .strategy-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    user-select: none;
+  }
+  
+  /* Strategy List Panel */
+  .strategy-list {
+    position: fixed;
+    bottom: 70px; /* Position above the bar */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #fff;
+    border: 1px solid #333;
+    padding: 20px;
+    border-radius: 12px;
+    display: none; /* Hidden by default */
+    z-index: 1000; /* Same z-index or higher than bar */
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+    min-width: 300px;
+    text-align: center;
+    /* Add max-height and overflow if list gets long */
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .strategy-list h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: #333;
+  }
+  
+  /* Strategy Card Circles */
+  .card-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: inline-block; /* Arrange in a row */
+    margin: 10px; /* Space between circles */
+    cursor: pointer;
+    position: relative; /* Needed for positioning the hover image */
+    overflow: visible; /* Allow the hover image to appear outside */
+  }
+  
+  /* Team colors */
+  .card-circle.red { background-color: #dc3545; }
+  .card-circle.blue { background-color: #007bff; }
+  .card-circle.white { background-color: #fff; border: 2px solid #333; }
+  
+  /* Hover Image */
+  .card-circle .hover-image {
+    display: none; /* Hidden by default */
+    position: absolute; /* Position relative to the card-circle */
+    /* Adjust position to appear above the circle */
+    bottom: 100%; /* Position above the circle */
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px); /* Center horizontally and add some space above */
+    width: 120px; /* Base size */
+    border: 2px solid #333;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1001; /* Ensure it's above the strategy list panel (1000) */
+    /* **Removed Scale:** Scaling the hover image can cause layout shifts and feel janky.
+       It's often better to just show it at a reasonable size. If you need zoom,
+       a separate modal or dedicated viewer is usually better.
+       Keeping transition for position changes if you adjust bottom/left/transform. */
+    transition: transform 0.3s ease;
+  }
+  
+  /* Show the hover image when the parent circle is hovered */
+  .card-circle:hover .hover-image {
+    display: block;
+    /* Re-apply the initial transform or adjust if needed for hover state */
+    transform: translateX(-55%) translateY(-10px) scale(1); /* Example: slightly off-center? */
+  }
+  
+  /* Removed duplicate .card-circle:hover .hover-image rule */
+  
+  /* Fix for image size within the strategy list circles */
+  .card-circle img {
+      width: 100%; /* Make image fill the circle */
+      height: 100%; /* Make image fill the circle */
+      object-fit: cover; /* Crop image to fill the circle without distortion */
+      border-radius: 50%; /* Make image itself round if the circle is round */
+  }
+  
+  
+  /* Potential adjustment for small screens */
+  @media (max-width: 768px) {
+      .top-lineup-area,
+      .bottom-lineup-area,
+      .placemat {
+          padding: 5px; /* Reduce padding on smaller screens */
+      }
+  
+      .field-area {
+           width: 95vmin; /* Make field slightly larger relative to viewport */
+           height: 95vmin;
+           max-width: none; /* Remove max-width constraint on small screens */
+           max-height: none;
+      }
+  
+      /* Adjust base/mound positions if they feel off on smaller screens */
+      #home { bottom: 10vmin; left: calc(50% - 2.5vmin); }
+      #first { bottom: 28vmin; right: 28vmin; }
+      #second { top: 12vmin; left: calc(50% - 2vmin); }
+      #third { bottom: 28vmin; left: 28vmin; }
+      .spot.mound { top: calc(50% - 5vmin); left: calc(50% - 5vmin); }
+  
+  
+      /* Adjust scoreboard/controls position and size on smaller screens */
+      .field-area .scoreboard-container,
+      .field-area .scoreboard-controls {
+           position: static; /* Make them stack normally within field-area */
+           margin: 1vmin auto; /* Center and add space */
+           width: 95%; /* Make them wider */
+           max-width: none; /* Remove max-width */
+           border: 0.5vmin solid #ccc; /* Slightly thicker border */
+           border-radius: 1vmin;
+           padding: 1.5vmin;
+      }
+  
+      .baseball-scoreboard th,
+      .baseball-scoreboard td {
+          padding: 0.8vmin 0.5vmin; /* More padding on smaller screens */
+          font-size: 2vmin; /* Increase font size slightly */
+      }
+  
+      .game-state {
+          flex-direction: column; /* Stack inning/outs/half-inning */
+          gap: 0.8vmin; /* Adjust gap */
+          font-size: 2vmin;
+      }
+       .game-state p { text-align: center; }
+  
+  
+      .scoreboard-controls .control-row {
+          gap: 1vmin; /* Increase button gap */
+          justify-content: space-around; /* Distribute buttons more evenly */
+      }
+       .scoreboard-controls button {
+           padding: 1vmin 1.8vmin;
+           font-size: 1.8vmin;
+       }
+  
+       /* Adjust fixed elements if they overlap */
+       #newGameButton, #gameUrlSection {
+           top: auto;
+           bottom: 10px; /* Move to bottom */
+           transform: translateX(-50%);
+           width: 90%; /* Make wider */
+           max-width: none;
+           flex-direction: column; /* Stack input/button */
+           gap: 5px;
+           padding: 10px;
+       }
+       #newGameButton { bottom: 70px; } /* Position above URL section */
+       #gameUrlSection { bottom: 10px; }
+  
+  
+      /* Adjust strategy list position on small screens */
+      .strategy-list {
+          bottom: 130px; /* Position above game URL section + bar */
+          width: 95%;
+          max-width: none;
+          padding: 15px;
+      }
+      .strategy-bar {
+           bottom: 80px; /* Position above game URL section */
+      }
+  
+      /* Adjust hover image position if strategy list moves */
+       .card-circle .hover-image {
+            bottom: 100%; /* Keep it above the circle */
+            transform: translateX(-50%) translateY(-5px) scale(1); /* Don't scale, slight translateY */
+            width: 100px; /* Smaller size */
+       }
+       .card-circle:hover .hover-image {
+           transform: translateX(-50%) translateY(-5px) scale(1); /* Keep scale 1 on hover */
+       }
+  
+       /* Adjust spot sizes in lineups if they are too big */
+       .spot:not(.base):not(.mound) {
+           width: 120px;
+           height: 120px;
+           font-size: 20px;
+       }
+       /* Adjust draggable image base size if spots change */
+       .draggable-image {
+           max-width: 60px;
+           max-height: 60px;
+       }
+       .draggable-image.on-field {
+           max-width: 80px;
+           max-height: 80px;
+       }
+  }
