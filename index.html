@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MLB Showdown Placemat</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+
+    <script type="module" src="./script.js"></script>
+</head>
+<body>
+    <div id="gameContent" class="hidden-content">
+        <button id="newGameButton">🎮 Start New Game</button>
+        <div id="gameUrlSection" style="display: none;">
+            <input type="text" id="gameUrlInput" readonly />
+            <button id="copyUrlButton">Copy URL</button>
+        </div>
+
+        <div class="dice-container" id="dice1-container">
+            <div class="dice-label">Home</div>
+            <button id="dice1">🎲 Roll</button>
+            <div id="diceResult1">Roll result: --</div>
+        </div>
+
+        <div class="dice-container" id="dice2-container">
+            <div class="dice-label">Away</div>
+            <button id="dice2">🎲 Roll</button>
+            <div id="diceResult2">Roll result: --</div>
+        </div>
+
+        <div class="top-lineup-area">
+            <div class="team-set blue-set">
+                <h3>Blue Team Lineup</h3>
+                <div class="lineup-grid">
+                    <div class="spot" id="blue-sp1">SP1</div>
+                    <div class="spot" id="blue-sp2">SP2</div>
+                    <div class="spot" id="blue-sp3">SP3</div>
+                    <div class="spot" id="blue-sp4">SP4</div>
+                    <div class="spot" id="blue-sp5">RP1</div>
+                    <div class="spot" id="blue-sp6">RP2</div>
+                    <div class="spot" id="blue-sp7">RP3</div>
+                    <div class="spot" id="blue-sp8">RP4</div>
+                    <div class="spot" id="blue-sp9">CL</div>
+                </div>
+                <h3>Blue Team Bench</h3>
+                <div class="bench-grid">
+                     <div class="spot" id="blue-b1">B1</div>
+                     <div class="spot" id="blue-b2">B2</div>
+                     </div>
+                 <h3>Blue Team Pitchers</h3>
+                 <div class="pitcher-grid">
+                      <div class="spot" id="blue-p1">1</div>
+                      <div class="spot" id="blue-p2">2</div>
+                      <div class="spot" id="blue-p3">3</div>
+                      <div class="spot" id="blue-p4">4</div>
+                      <div class="spot" id="blue-p5">5</div>
+                      <div class="spot" id="blue-p6">6</div>
+                      <div class="spot" id="blue-p7">7</div>
+                      <div class="spot" id="blue-p8">8</div>
+                      <div class="spot" id="blue-p9">9</div>
+                      </div>
+            </div>
+        </div>
+
+        <div class="placemat">
+            <div class="scoreboard-container">
+                <table class="baseball-scoreboard">
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th>
+                            <th>R</th><th>H</th><th>E</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="away-team-row">
+                            <td class="team-name">Away</td>
+                            <td class="inning-score" data-inning="1">0</td>
+                            <td class="inning-score" data-inning="2">0</td>
+                            <td class="inning-score" data-inning="3">0</td>
+                            <td class="inning-score" data-inning="4">0</td>
+                            <td class="inning-score" data-inning="5">0</td>
+                            <td class="inning-score" data-inning="6">0</td>
+                            <td class="inning-score" data-inning="7">0</td>
+                            <td class="inning-score" data-inning="8">0</td>
+                            <td class="inning-score" data-inning="9">0</td>
+                            <td class="total-runs">0</td>
+                            <td class="total-hits">0</td>
+                            <td class="total-errors">0</td>
+                        </tr>
+                        <tr class="home-team-row">
+                            <td class="team-name">Home</td>
+                             <td class="inning-score" data-inning="1">0</td>
+                            <td class="inning-score" data-inning="2">0</td>
+                            <td class="inning-score" data-inning="3">0</td>
+                            <td class="inning-score" data-inning="4">0</td>
+                            <td class="inning-score" data-inning="5">0</td>
+                            <td class="inning-score" data-inning="6">0</td>
+                            <td class="inning-score" data-inning="7">0</td>
+                            <td class="inning-score" data-inning="8">0</td>
+                            <td class="inning-score" data-inning="9">0</td>
+                            <td class="total-runs">0</td>
+                            <td class="total-hits">0</td>
+                            <td class="total-errors">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+                 <div class="game-state">
+                      <p>Inning: <span id="current-inning">1</span></p>
+                      <p>Outs: <span id="current-outs">0</span></p>
+                       <p>Half: <span id="inning-half">Top</span></p>
+                 </div>
+            </div>
+
+             <div class="scoreboard-controls">
+                 <h4>Game Controls</h4>
+                 <div class="control-row">
+                      <button data-action="add-run" data-team="away">Away Run</button>
+                      <button data-action="add-hit" data-team="away">Away Hit</button>
+                      <button data-action="add-error" data-team="away">Away Error</button>
+                 </div>
+                 <div class="control-row">
+                      <button data-action="add-run" data-team="home">Home Run</button>
+                      <button data-action="add-hit" data-team="home">Home Hit</button>
+                      <button data-action="add-error" data-team="home">Home Error</button>
+                 </div>
+                 <div class="control-row">
+                       <button data-action="add-out">Add Out</button>
+                       <button data-action="next-inning">Next Inning</button>
+                 </div>
+             </div>
+
+
+             <div class="field-area">
+                 <div class="warning-track"></div>
+                 <div class="diamond"></div>
+                 <div class="foul-line left"></div>
+                 <div class="foul-line right"></div>
+
+                 <div class="spot base" id="home">HOME</div>
+                 <div class="spot base" id="first">1ST</div>
+                 <div class="spot base" id="second">2ND</div>
+                 <div class="spot base" id="third">3RD</div>
+                 <div class="spot mound" id="pitchers-mound">MOUND</div>
+
+                 </div>
+             </div>
+
+        <div class="bottom-lineup-area">
+             <div class="team-set red-set">
+                 <h3>Red Team Lineup</h3>
+                 <div class="lineup-grid">
+                     <div class="spot" id="red-sp1">1</div>
+                     <div class="spot" id="red-sp2">2</div>
+                     <div class="spot" id="red-sp3">3</div>
+                     <div class="spot" id="red-sp4">4</div>
+                     <div class="spot" id="red-sp5">5</div>
+                     <div class="spot" id="red-sp6">6</div>
+                     <div class="spot" id="red-sp7">7</div>
+                     <div class="spot" id="red-sp8">8</div>
+                     <div class="spot" id="red-sp9">9</div>
+                 </div>
+                  <h3>Red Team Bench</h3>
+                 <div class="bench-grid">
+                      <div class="spot" id="red-b1">B1</div>
+                      <div class="spot" id="red-b2">B2</div>
+                      </div>
+                  <h3>Red Team Pitchers</h3>
+                  <div class="pitcher-grid">
+                       <div class="spot" id="red-p1">SP1</div>
+                       <div class="spot" id="red-p2">SP2</div>
+                       <div class="spot" id="red-p3">SP3</div>
+                       <div class="spot" id="red-p4">SP4</div>
+                       <div class="spot" id="red-p5">RP1</div>
+                       <div class="spot" id="red-p6">RP2</div>
+                       <div class="spot" id="red-p7">RP3</div>
+                       <div class="spot" id="red-p8">RP4</div>
+                       <div class="spot" id="red-p9">CL</div>
+                       </div>
+             </div>
+        </div>
+
+         <input type="file" id="fileInput" accept="image/*" style="display: none;">
+
+         <div class="strategy-bar">Strategy Cards</div>
+
+         <div class="strategy-list" id="strategyList">
+              <h3>Strategy Cards</h3>
+              <div class="card-circle red">
+                  <img src="https://firebasestorage.googleapis.com/v0/b/mlb-showdown-club.firebasestorage.app/o/strategy-cards%2F8110-409541Fr.jpg?alt=media&token=c47c9eb5-2bf6-4769-9acd-b4c7159afd78" class="hover-image" alt="Red Strategy Card 1 Full">
+              </div>
+               <div class="card-circle red">
+                  <img src="https://firebasestorage.googleapis.com/v0/b/mlb-showdown-club.firebasestorage.app/o/strategy-cards%2Fs-l500.webp?alt=media&token=d3bb8e61-e1a8-4661-a77b-5dc4628e24d9" class="hover-image" alt="Red Strategy Card 2 Full">
+              </div>
+               <div class="card-circle blue">
+                  <img src="https://firebasestorage.googleapis.com/v0/b/mlb-showdown-club.firebasestorage.app/o/strategy-cards%2Fs-l500%20(1).webp?alt=media&token=ae226eb7-87f5-417b-a906-025ec7291ca8" class="hover-image" alt="Blue Strategy Card 1 Full">
+              </div>
+               <div class="card-circle blue">
+                  <img src="https://firebasestorage.googleapis.com/v0/b/mlb-showdown-club.firebasestorage.app/o/strategy-cards%2Fs-l500%20(2).webp?alt=media&token=68b4c37a-b2d9-487a-9e84-522c8b5a63f8" class="hover-image" alt="Blue Strategy Card 2 Full">
+              </div>
+               <div class="card-circle white">
+                  <img src="https://firebasestorage.googleapis.com/v0/b/mlb-showdown-club.firebasestorage.app/o/strategy-cards%2Fs-l500%20(3).webp?alt=media&token=e3788980-7c28-412e-ae78-f0a7f69294d8" class="hover-image" alt="White Strategy Card 1 Full">
+              </div>
+    </div> <style>
+         .hidden-content {
+             display: none;
+         }
+     </style>
+
+</body>
+</html>
